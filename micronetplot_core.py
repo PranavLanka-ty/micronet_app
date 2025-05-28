@@ -58,7 +58,7 @@ def extract_single_matrix(raw):
     return node_names, W
 
 
-def plot_graph(matrix, node_names, filename, color1,color2, pos, params):
+def plot_graph(matrix, node_names, filename, edge_color,arrow_color,neutral_color, pos, params):
     matrix = matrix + params["restfactor"] * (np.ones_like(matrix) - np.eye(len(matrix)))
     G = nx.DiGraph()
     for i, src in enumerate(node_names):
@@ -92,7 +92,7 @@ def plot_graph(matrix, node_names, filename, color1,color2, pos, params):
             patch = FancyArrowPatch((x_start, y_start), (x_end, y_end),
                                     connectionstyle="arc3,rad=0.2",
                                     arrowstyle='-',
-                                    color=color2,
+                                    color=neutral_color,
                                     linewidth=width*params["neutral_strength"], 
                                     mutation_scale=arrow_size)
             ax.add_patch(patch)        
@@ -101,7 +101,7 @@ def plot_graph(matrix, node_names, filename, color1,color2, pos, params):
             patch = FancyArrowPatch((x_start, y_start), (x_end, y_end),
                                     connectionstyle="arc3,rad=0.2",
                                     arrowstyle='-',
-                                    color=color1,
+                                    color=edge_color,
                                     linewidth=width,
                                     mutation_scale=arrow_size)
             ax.add_patch(patch)
@@ -126,7 +126,7 @@ def plot_graph(matrix, node_names, filename, color1,color2, pos, params):
             mid_arrow = FancyArrowPatch((x_start, y_start), (mid_x + dx, mid_y + dy),
                                         connectionstyle=f"arc3,rad={rad}",
                                         arrowstyle='-|>',
-                                        color=[c * 0.75 for c in color1],
+                                        color=arrow_color,
                                         linewidth=0,
                                         mutation_scale=arrow_size * 3)
             ax.add_patch(mid_arrow)
@@ -138,11 +138,24 @@ def plot_graph(matrix, node_names, filename, color1,color2, pos, params):
     plt.close()
 
 def generate_all_graphs(excel_path):
+
+
+    edge_colors = {
+        "edgeColor1": [110/256, 158/256, 158/256],       # Blue
+        "edgeColor2": [245/256, 193/256, 89/256]     # Magenta
+    }
+    
+    arrow_colors = {
+        "arrowColor1":[88/256,126/256,139/256],       # Blue
+        "arrowColor2": [217/256,	139/256,	75/256]      # Magenta
+    }
+    neutral_color = [0,0, 0]
     raw1, raw2, settings = load_excel(excel_path)
     params = extract_params(settings)
     node_names1, w1 = extract_single_matrix(raw1)
     node_names2, w2 = extract_single_matrix(raw2)
 
+    
     assert node_names1 == node_names2, "Node names must match between both matrices"
     node_names = node_names1
 
@@ -153,8 +166,8 @@ def generate_all_graphs(excel_path):
                 G_ref.add_edge(node_names[j], node_names[i])
     pos = nx.circular_layout(G_ref)
 
-    plot_graph(w1, node_names, "fig1.png", [0, 1, 0],[0, 0, 0], pos, params)
-    plot_graph(w2, node_names, "fig2.png", [1, 0, 0],[0, 0, 0], pos, params)
+    plot_graph(w1, node_names, "fig1.png", edge_colors["edgeColor1"],arrow_colors["arrowColor1"],neutral_color, pos, params)
+    plot_graph(w2, node_names, "fig2.png", edge_colors["edgeColor1"],arrow_colors["arrowColor1"],neutral_color, pos, params)
 
     img1 = Image.open("fig1.png").convert("RGBA")
     img2 = Image.open("fig2.png").convert("RGBA")
