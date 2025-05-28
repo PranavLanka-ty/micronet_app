@@ -167,7 +167,7 @@ def generate_all_graphs(excel_path):
     pos = nx.circular_layout(G_ref)
 
     plot_graph(w1, node_names, "fig1.png", edge_colors["edgeColor1"],arrow_colors["arrowColor1"],neutral_color, pos, params)
-    plot_graph(w2, node_names, "fig2.png", edge_colors["edgeColor1"],arrow_colors["arrowColor1"],neutral_color, pos, params)
+    plot_graph(w2, node_names, "fig2.png", edge_colors["edgeColor2"],arrow_colors["arrowColor2"],neutral_color, pos, params)
 
     img1 = Image.open("fig1.png").convert("RGBA")
     img2 = Image.open("fig2.png").convert("RGBA")
