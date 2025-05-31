@@ -30,4 +30,4 @@ if uploaded_file:
     with col2:
         st.image(fig2, caption="Negative Interactions", use_container_width =True)
 
-    st.image(combined, caption="Overlayed Result", use_container_width =True)
+    st.image(combined, caption="Overlaid Result", use_container_width =True)
