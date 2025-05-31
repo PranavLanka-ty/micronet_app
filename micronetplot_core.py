@@ -34,16 +34,19 @@ def extract_params(settings_df):
         return settings_df.loc[settings_df[0] == key, 1].values[0]
 
     return {
-        "restfactor": get_setting('restfactor'),
-        "linewidth_base": get_setting('linewidth_base'),
-        "linewidth_scale": get_setting('linewidth_scale'),
-        "arrowsize_base": get_setting('arrowsize_base'),
-        "arrowsize_scale": get_setting('arrowsize_scale'),
-        "combined_alpha": get_setting('combined_alpha'),
-        "plot_min_connectors": get_setting('minconflag'),
-        "neutral_strength": get_setting('neutral_strength'),
-
-        "nodeFontSize": int(get_setting('nodeFontSize')) if 'nodeFontSize' in settings_df[0].values else 12
+        "scale neutral strength": get_setting('scale neutral strength'),
+        "scale linewidth": get_setting('scale linewidth'),
+        "scale arrowsize": get_setting('scale arrowsize'),
+        "combined transparency": get_setting('combined transparency'),
+        "nodeSize" :  int(get_setting('nodeSize')) if 'nodeSize' in settings_df[0].values else 8,
+        "nodeFontSize": int(get_setting('nodeFontSize')) if 'nodeFontSize' in settings_df[0].values else 12,
+        "nodeColor": get_setting('nodeColor').strip(),
+        "Positive Line Color": get_setting('Positive Line Color').strip(),
+        "Positive Arrow Color": get_setting('Positive Arrow Color').strip(),
+        "Negative Line Color": get_setting('Negative Line Color').strip(),
+        "Negative Arrow Color": get_setting('Negative Arrow Color').strip(),
+        "Neutral Color": get_setting('Negative Arrow Color').strip(),
+        
     }
 
 
@@ -58,8 +61,20 @@ def extract_single_matrix(raw):
     return node_names, W
 
 
-def plot_graph(matrix, node_names, filename, edge_color,arrow_color,neutral_color, pos, params):
-    matrix = matrix + params["restfactor"] * (np.ones_like(matrix) - np.eye(len(matrix)))
+def plot_graph(matrix, node_names, filename, pos, params, inttype):
+    baseline_factor = 0.0001 # Strength of the 0 values in the Interaction Matrix
+    baseline_width = 0.1
+    baseline_arrowsize = 4
+    if inttype == 1:
+        edge_color = params["Positive Line Color"] 
+        arrow_color = params["Positive Arrow Color"] 
+        neutral_color = params["Neutral Color"] 
+    else:
+        edge_color = params["Negative Line Color"] 
+        arrow_color = params["Negative Arrow Color"] 
+        neutral_color = params["Neutral Color"] 
+        
+    matrix = matrix + baseline_factor * (np.ones_like(matrix) - np.eye(len(matrix)))
     G = nx.DiGraph()
     for i, src in enumerate(node_names):
         for j, dst in enumerate(node_names):
@@ -67,11 +82,11 @@ def plot_graph(matrix, node_names, filename, edge_color,arrow_color,neutral_colo
                 G.add_edge(dst, src, weight=matrix[i, j])
 
     weights = [abs(G[u][v]['weight']) for u, v in G.edges()]
-    widths = params["linewidth_base"] + params["linewidth_scale"] * (np.array(weights) / max(weights or [1]))
-    arrows = params["arrowsize_base"] + params["arrowsize_scale"] * (np.array(weights) / max(weights or [1]))
+    widths = baseline_width + params["scale linewidth"] * (np.array(weights) / max(weights or [1])) # 
+    arrows = baseline_arrowsize +  params["scale arrowsize"] * (np.array(weights) / max(weights or [1])) # 
 
     fig, ax = plt.subplots(figsize=(10, 10))
-    nx.draw_networkx_nodes(G, pos, ax=ax, node_size=80, node_color='black')
+    nx.draw_networkx_nodes(G, pos, ax=ax, node_size=params["nodeSize"], node_color = params["nodeColor"] ) # 
     for node, (x, y) in pos.items():
         ax.text(x, y + 0.06, node, fontsize=params["nodeFontSize"],
                 ha='center', va='center', fontstyle='italic',
@@ -93,7 +108,7 @@ def plot_graph(matrix, node_names, filename, edge_color,arrow_color,neutral_colo
                                     connectionstyle="arc3,rad=0.2",
                                     arrowstyle='-',
                                     color=neutral_color,
-                                    linewidth=width*params["neutral_strength"], 
+                                    linewidth=width*params["scale neutral strength"], 
                                     mutation_scale=arrow_size)
             ax.add_patch(patch)        
         else:
@@ -140,16 +155,7 @@ def plot_graph(matrix, node_names, filename, edge_color,arrow_color,neutral_colo
 def generate_all_graphs(excel_path):
 
 
-    edge_colors = {
-        "edgeColor1": [110/256, 158/256, 158/256],       # Blue
-        "edgeColor2": [245/256, 193/256, 89/256]     # Magenta
-    }
-    
-    arrow_colors = {
-        "arrowColor1":[88/256,126/256,139/256],       # Blue
-        "arrowColor2": [217/256,	139/256,	75/256]      # Magenta
-    }
-    neutral_color = [0,0, 0]
+
     raw1, raw2, settings = load_excel(excel_path)
     params = extract_params(settings)
     node_names1, w1 = extract_single_matrix(raw1)
@@ -166,12 +172,12 @@ def generate_all_graphs(excel_path):
                 G_ref.add_edge(node_names[j], node_names[i])
     pos = nx.circular_layout(G_ref)
 
-    plot_graph(w1, node_names, "fig1.png", edge_colors["edgeColor1"],arrow_colors["arrowColor1"],neutral_color, pos, params)
-    plot_graph(w2, node_names, "fig2.png", edge_colors["edgeColor2"],arrow_colors["arrowColor2"],neutral_color, pos, params)
+    plot_graph(w1, node_names, "fig1.png", pos, params, 1)
+    plot_graph(w2, node_names, "fig2.png", pos, params, 2)
 
     img1 = Image.open("fig1.png").convert("RGBA")
     img2 = Image.open("fig2.png").convert("RGBA")
-    blended = Image.blend(img1, img2, params["combined_alpha"])
+    blended = Image.blend(img1, img2, params["combined transparency"])
     blended.convert("RGB").save("combinedFigures.jpg")
 
     return "fig1.png", "fig2.png", "combinedFigures.jpg"
