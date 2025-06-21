@@ -45,7 +45,7 @@ def extract_params(settings_df):
         "Positive Arrow Color": get_setting('Positive Arrow Color').strip(),
         "Negative Line Color": get_setting('Negative Line Color').strip(),
         "Negative Arrow Color": get_setting('Negative Arrow Color').strip(),
-        "Neutral Color": get_setting('Negative Arrow Color').strip(),
+        "Neutral Color": get_setting('Neutral Color').strip(),
         
     }
 
