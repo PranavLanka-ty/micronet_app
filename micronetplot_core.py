@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat May 17 23:17:45 2025
-
-@author: BioPixS
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Sat May 17 18:43:10 2025
 
 Updated version to read interaction matrices from two separate sheets.
 
-@author: BioPixS
+@author: Pranav Lanka
 """
 
 import pandas as pd
@@ -60,40 +53,45 @@ def extract_single_matrix(raw):
             W[i, j] = float(val) if not pd.isna(val) else 0.0
     return node_names, W
 
-
-def plot_graph(matrix, node_names, filename, pos, params, inttype):
-    baseline_factor = 0.0001 # Strength of the 0 values in the Interaction Matrix
+def plot_graph(matrix, matrix_other, node_names, filename, pos, params, inttype):
+    baseline_factor = 0.0001  # Strength of the 0 values in the Interaction Matrix
     baseline_width = 0.1
     baseline_arrowsize = 4
+
     if inttype == 1:
-        edge_color = params["Positive Line Color"] 
-        arrow_color = params["Positive Arrow Color"] 
-        neutral_color = params["Neutral Color"] 
+        edge_color = params["Positive Line Color"]
+        arrow_color = params["Positive Arrow Color"]
+        neutral_color = params["Neutral Color"]
     else:
-        edge_color = params["Negative Line Color"] 
-        arrow_color = params["Negative Arrow Color"] 
-        neutral_color = params["Neutral Color"] 
-        
+        edge_color = params["Negative Line Color"]
+        arrow_color = params["Negative Arrow Color"]
+        neutral_color = params["Neutral Color"]
+
+    # Add neutral filler strength
     matrix = matrix + baseline_factor * (np.ones_like(matrix) - np.eye(len(matrix)))
+
+    filtered_matrix = matrix.copy()
+    N = filtered_matrix.shape[0]
+
     G = nx.DiGraph()
     for i, src in enumerate(node_names):
         for j, dst in enumerate(node_names):
-            if matrix[i, j] != 0:
-                G.add_edge(dst, src, weight=matrix[i, j])
+            if filtered_matrix[i, j] != 0:
+                G.add_edge(dst, src, weight=filtered_matrix[i, j])
 
     weights = [abs(G[u][v]['weight']) for u, v in G.edges()]
-    widths = baseline_width + params["scale linewidth"] * (np.array(weights) / max(weights or [1])) # 
-    arrows = baseline_arrowsize +  params["scale arrowsize"] * (np.array(weights) / max(weights or [1])) # 
+    widths = baseline_width + params["scale linewidth"] * (np.array(weights) / max(weights or [1]))
+    arrows = baseline_arrowsize + params["scale arrowsize"] * (np.array(weights) / max(weights or [1]))
 
     fig, ax = plt.subplots(figsize=(10, 10))
-    nx.draw_networkx_nodes(G, pos, ax=ax, node_size=params["nodeSize"], node_color = params["nodeColor"] ) # 
+    nx.draw_networkx_nodes(G, pos, ax=ax, node_size=params["nodeSize"], node_color=params["nodeColor"])
+
     for node, (x, y) in pos.items():
         ax.text(x, y + 0.06, node, fontsize=params["nodeFontSize"],
                 ha='center', va='center', fontstyle='italic',
                 bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
 
     min_arrow_size = min(arrows)
-    # min_width = min(widths)
 
     for (u, v), width, arrow_size in zip(G.edges(), widths, arrows):
         if u == v:
@@ -101,42 +99,42 @@ def plot_graph(matrix, node_names, filename, pos, params, inttype):
 
         x_start, y_start = pos[u]
         x_end, y_end = pos[v]
-        # Skip edge if not plotting min connectors and this is the minimum size
-        if arrow_size == min_arrow_size:
-        # Otherwise, draw the edge
-            patch = FancyArrowPatch((x_start, y_start), (x_end, y_end),
-                                    connectionstyle="arc3,rad=0.2",
-                                    arrowstyle='-',
-                                    color=neutral_color,
-                                    linewidth=width*params["scale neutral strength"], 
-                                    mutation_scale=arrow_size)
-            ax.add_patch(patch)        
+
+        i = node_names.index(v)
+        j = node_names.index(u)
+
+        is_neutral = np.isclose(filtered_matrix[i, j], baseline_factor, rtol=1e-5)
+        other_strength = matrix_other[i, j]
+
+        if is_neutral and not np.isclose(other_strength, 0, rtol=1e-5):
+            current_color = (1, 1, 1, 0)  # fully transparent
+        elif is_neutral:
+            current_color = neutral_color
         else:
-            # Otherwise, draw the edge
-            patch = FancyArrowPatch((x_start, y_start), (x_end, y_end),
-                                    connectionstyle="arc3,rad=0.2",
-                                    arrowstyle='-',
-                                    color=edge_color,
-                                    linewidth=width,
-                                    mutation_scale=arrow_size)
-            ax.add_patch(patch)
+            current_color = edge_color
 
-                    
+        patch = FancyArrowPatch((x_start, y_start), (x_end, y_end),
+                                connectionstyle="arc3,rad=0.2",
+                                arrowstyle='-',
+                                color=current_color,
+                                linewidth=width if not is_neutral else width * params["scale neutral strength"],
+                                mutation_scale=arrow_size)
+        ax.add_patch(patch)
 
-        if arrow_size > min_arrow_size:
+        if not is_neutral:
             rad = 0.2
             ctrl_x = (x_start + x_end) / 2 + rad * (y_end - y_start)
             ctrl_y = (y_start + y_end) / 2 - rad * (x_end - x_start)
-
+    
             t = 0.5
             mid_x = (1 - t) ** 2 * x_start + 2 * (1 - t) * t * ctrl_x + t ** 2 * x_end
             mid_y = (1 - t) ** 2 * y_start + 2 * (1 - t) * t * ctrl_y + t ** 2 * y_end
-
+    
             dx = 2 * (1 - t) * (ctrl_x - x_start) + 2 * t * (x_end - ctrl_x)
             dy = 2 * (1 - t) * (ctrl_y - y_start) + 2 * t * (y_end - ctrl_y)
             norm = np.hypot(dx, dy)
             dx, dy = dx / norm * 0.02, dy / norm * 0.02
-
+    
             rad = 0.1
             mid_arrow = FancyArrowPatch((x_start, y_start), (mid_x + dx, mid_y + dy),
                                         connectionstyle=f"arc3,rad={rad}",
@@ -146,11 +144,14 @@ def plot_graph(matrix, node_names, filename, pos, params, inttype):
                                         mutation_scale=arrow_size * 3)
             ax.add_patch(mid_arrow)
 
+
+
     ax.set_aspect('equal')
     plt.axis('off')
     plt.tight_layout()
     plt.savefig(filename, dpi=300)
     plt.close()
+
 
 def generate_all_graphs(excel_path):
 
@@ -172,12 +173,19 @@ def generate_all_graphs(excel_path):
                 G_ref.add_edge(node_names[j], node_names[i])
     pos = nx.circular_layout(G_ref)
 
-    plot_graph(w1, node_names, "fig1.png", pos, params, 1)
-    plot_graph(w2, node_names, "fig2.png", pos, params, 2)
+    # plot_graph(w1, node_names, "fig1.png", pos, params, 1)
+    # plot_graph(w2, node_names, "fig2.png", pos, params, 2)
+    
+    plot_graph(w1, w2, node_names, "fig1.png", pos, params, 1)  # Positive plot excludes neutral if present in Negative
+    plot_graph(w2, w1, node_names, "fig2.png", pos, params, 2)  # Negative plot excludes neutral if present in Positive
+    
 
     img1 = Image.open("fig1.png").convert("RGBA")
     img2 = Image.open("fig2.png").convert("RGBA")
     blended = Image.blend(img1, img2, params["combined transparency"])
     blended.convert("RGB").save("combinedFigures.jpg")
 
-    return "fig1.png", "fig2.png", "combinedFigures.jpg"
+    return "fig1.png", "fig2.png", "combinedFigures.jpg" 
+# #%%
+
+# fig1, fig2, combined = generate_all_graphs("interaction_config.xlsx")
