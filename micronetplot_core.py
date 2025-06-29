@@ -163,12 +163,6 @@ def generate_all_graphs(excel_path):
 
     plot_graph(W_pos, W_neg, node_names, "fig1.png", pos, params, highlight='positive')
     plot_graph(W_pos, W_neg, node_names, "fig2.png", pos, params, highlight='negative')
-
-    # img1 = Image.open("fig1.png").convert("RGBA")
-    # img2 = Image.open("fig2.png").convert("RGBA")
-    # img2 = Image.blend(Image.new("RGBA", img2.size, (255, 255, 255, 0)), img2, params["combined transparency"])
-    # final_img = Image.alpha_composite(img1, img2)
-    # final_img.convert("RGB").save("combinedFigures.jpg")
     
     img1 = Image.open("fig1.png").convert("RGBA")
     img2 = Image.open("fig2.png").convert("RGBA")
