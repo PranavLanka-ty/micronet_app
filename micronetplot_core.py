@@ -143,7 +143,7 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params, highlight='posit
     ax.set_aspect('equal')
     ax.axis('off')
     plt.tight_layout()
-    plt.savefig(filename, dpi=600, bbox_inches='tight', pad_inches=0.1, transparent=True)
+    plt.savefig(filename, dpi=600, bbox_inches='tight', pad_inches=0.1) #, transparent=True
     plt.close()
 
 def generate_all_graphs(excel_path):
@@ -164,11 +164,25 @@ def generate_all_graphs(excel_path):
     plot_graph(W_pos, W_neg, node_names, "fig1.png", pos, params, highlight='positive')
     plot_graph(W_pos, W_neg, node_names, "fig2.png", pos, params, highlight='negative')
 
+    # img1 = Image.open("fig1.png").convert("RGBA")
+    # img2 = Image.open("fig2.png").convert("RGBA")
+    # img2 = Image.blend(Image.new("RGBA", img2.size, (255, 255, 255, 0)), img2, params["combined transparency"])
+    # final_img = Image.alpha_composite(img1, img2)
+    # final_img.convert("RGB").save("combinedFigures.jpg")
+    
     img1 = Image.open("fig1.png").convert("RGBA")
     img2 = Image.open("fig2.png").convert("RGBA")
-    img2 = Image.blend(Image.new("RGBA", img2.size, (255, 255, 255, 0)), img2, params["combined transparency"])
-    final_img = Image.alpha_composite(img1, img2)
-    final_img.convert("RGB").save("combinedFigures.jpg")
+
+    # Force exact same size before blending
+    if img1.size != img2.size:
+        img2 = img2.resize(img1.size, resample=Image.BICUBIC)
+
+    alpha = params["combined transparency"]
+    img2_masked = Image.blend(Image.new("RGBA", img2.size, (255, 255, 255, 0)), img2, alpha)
+    
+    combined = Image.alpha_composite(img1, img2_masked)
+    combined.convert("RGB").save("combinedFigures.jpg", quality=95)
+
 
     return "fig1.png", "fig2.png", "combinedFigures.jpg"
 
