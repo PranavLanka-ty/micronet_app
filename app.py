@@ -8,6 +8,7 @@ Created on Sat May 17 18:43:55 2025
 import streamlit as st
 from micronetplot_core import generate_all_graphs
 from io import BytesIO
+from PIL import Image
 
 st.set_page_config(page_title="Sihumi Digraph Plotter", layout="wide")
 
@@ -20,6 +21,13 @@ def convert_image_to_bytes(img):
     buf.seek(0)
     return buf
 
+def fig_to_pil(fig):
+    buf = BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight')  # Save figure to buffer
+    buf.seek(0)
+    return Image.open(buf)  # Open it as PIL image
+
+
 uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
 if uploaded_file:
@@ -31,6 +39,9 @@ if uploaded_file:
 
     st.success("Done!")
 
+    fig1 = fig_to_pil(fig1)
+    fig2 = fig_to_pil(fig2)
+    combined = fig_to_pil(combined)
     # Prepare image byte buffers
     fig1_bytes = convert_image_to_bytes(fig1)
     fig2_bytes = convert_image_to_bytes(fig2)
