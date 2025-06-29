@@ -69,7 +69,7 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params, highlight='posit
     linewidths = baseline['width'] + params["scale linewidth"] * (weights / max_weight)
     arrowsizes = baseline['arrow'] + params["scale arrowsize"] * (weights / max_weight)
 
-    fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
     
     nx.draw_networkx_nodes(G, pos, ax=ax,
                            node_size=params["nodeSize"],
@@ -143,7 +143,7 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params, highlight='posit
     ax.set_aspect('equal')
     ax.axis('off')
     plt.tight_layout()
-    plt.savefig(filename, dpi=600, bbox_inches='tight', pad_inches=0.1) #, transparent=True
+    plt.savefig(filename, bbox_inches='tight') #, transparent=True
     plt.close()
 
 def generate_all_graphs(excel_path):
