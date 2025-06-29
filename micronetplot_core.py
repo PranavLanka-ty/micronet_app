@@ -211,5 +211,5 @@ def generate_all_graphs(excel_path):
 
 
 #%%
-# # # Run the graph generator
-fig1, fig2, dummy, combined = generate_all_graphs("S3- MicroNet Template.xlsx")
+# # # # Run the graph generator
+# fig1, fig2, dummy, combined = generate_all_graphs("S3- MicroNet Template.xlsx")
