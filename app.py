@@ -27,4 +27,4 @@ if uploaded_file:
         st.image(fig2, caption="Negative Interactions", use_container_width=True)
 
     # Combined figure
-    st.image(combined, caption="Overlaid Result (Pos + Neg)", use_container_width=True)
+    st.image(combined, caption="Overlaid Result", use_container_width=True)
