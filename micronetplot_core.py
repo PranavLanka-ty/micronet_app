@@ -143,7 +143,7 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params, highlight='posit
     ax.set_aspect('equal')
     ax.axis('off')
     plt.tight_layout()
-    plt.savefig(filename, bbox_inches='tight') #, transparent=True
+    plt.savefig(filename, bbox_inches='tight', transparent=True) #, transparent=True
     plt.close()
 
 def generate_all_graphs(excel_path):
