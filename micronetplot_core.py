@@ -18,7 +18,7 @@ from matplotlib.patches import FancyArrowPatch
 from PIL import Image
 
 def plot_graph(W_pos, W_neg, node_names, filename, pos, params,
-               highlight='positive', hide_neutral=False, hide_nodes=False, hide_labels=False):
+               highlight='positive', hide_neutral=False, hide_nodes=False, hide_labels=False,transp_flag = False):
     baseline = {'factor': 1e-4, 'width': 0.1, 'arrow': 4}
     N = len(node_names)
     W_combined = W_pos + W_neg
@@ -119,7 +119,12 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params,
     ax.set_aspect('equal')
     ax.axis('off')
     plt.tight_layout()
-    plt.savefig(filename)#, transparent=True
+    
+    if transp_flag is True:
+        plt.savefig(filename, transparent=True)#, transparent=True
+    else:
+        plt.savefig(filename)#, transparent=True
+        
     plt.close()
     
 
@@ -173,26 +178,38 @@ def generate_all_graphs(excel_path):
     pos = nx.circular_layout(G_all)
 
     # Full versions
-    plot_graph(W_pos, W_neg, node_names, "fig1.png", pos, params, highlight='positive')
-    plot_graph(W_pos, W_neg, node_names, "fig2.png", pos, params, highlight='negative')
+    plot_graph(W_pos, W_neg, node_names, "fig1.png", pos, params, highlight='positive', transp_flag = False)
+    plot_graph(W_pos, W_neg, node_names, "fig2.png", pos, params, highlight='negative', transp_flag = False)
+
+    # Dummy fig1 for clean overlay
+    plot_graph(W_pos, W_neg, node_names, "fig1_dummy.png", pos, params,
+                highlight='positive', hide_neutral=True, hide_nodes=False, hide_labels=False, transp_flag = True)
 
     # Dummy fig2 for clean overlay
     plot_graph(W_pos, W_neg, node_names, "fig2_dummy.png", pos, params,
-                highlight='negative', hide_neutral=True, hide_nodes=False, hide_labels=True)
+                highlight='negative', hide_neutral=False, hide_nodes=False, hide_labels=True, transp_flag = True)
 
-    img1 = Image.open("fig1.png").convert("RGBA")
+
+    img1 = Image.open("fig1_dummy.png").convert("RGBA")
     img2 = Image.open("fig2_dummy.png").convert("RGBA")
+    
     if img1.size != img2.size:
         img2 = img2.resize(img1.size)
 
     alpha = params["combined transparency"]
-    img2 = Image.blend(Image.new("RGBA", img2.size, (255, 255, 255, 0)), img2, alpha)
-    combined = Image.alpha_composite(img1, img2)
-    combined.save("combinedFigures.png")
 
+    # img1 = Image.blend(Image.new("RGBA", img1.size, (255, 255, 255, 0)), img1, alpha)
+    combined = Image.alpha_composite(img2, img1)
+    
+    # Force RGB (drop alpha channel)
+    combined_rgb = combined.convert("RGB")
+    combined_rgb.save("combinedFigures.png")
+    
+    # combined.save("combinedFigures.png", transparent=False)
+    
     return "fig1.png", "fig2.png", "fig2_dummy.png", "combinedFigures.png"
 
 
 #%%
 # # # Run the graph generator
-# fig1, fig2, dummy, combined = generate_all_graphs("S3- MicroNet Template.xlsx")
+fig1, fig2, dummy, combined = generate_all_graphs("S3- MicroNet Template.xlsx")
