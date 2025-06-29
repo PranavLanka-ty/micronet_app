@@ -175,10 +175,10 @@ def generate_all_graphs(excel_path):
     img2_masked = Image.blend(Image.new("RGBA", img2.size, (255, 255, 255, 0)), img2, alpha)
     
     combined = Image.alpha_composite(img1, img2_masked)
-    combined.convert("RGB").save("combinedFigures.jpg", quality=95)
+    combined.convert("RGB").save("combinedFigures.png", quality=95)
 
 
-    return "fig1.png", "fig2.png", "combinedFigures.jpg"
+    return "fig1.png", "fig2.png", "combinedFigures.png"
 
 #%%
 # # Run the graph generator
