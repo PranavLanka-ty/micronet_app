@@ -28,7 +28,8 @@ if uploaded_file:
 
     # Combined figure
     st.image(combined, caption="Overlaid Result (Pos + Neg)", use_container_width=True)
+    st.image(fig2_dummy, caption="Dummy Negative Interaction Graph")
 
-    # # Optional debug display
-    with st.expander("Show dummy fig2 (used for blending)"):
-        st.image(fig2_dummy, caption="Dummy Negative Interaction Graph")
+    # # # Optional debug display
+    # with st.expander("Show dummy fig2 (used for blending)"):
+    #     st.image(fig2_dummy, caption="Dummy Negative Interaction Graph")
