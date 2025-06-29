@@ -35,7 +35,7 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params,
     linewidths = baseline['width'] + params["scale linewidth"] * (weights / max_weight)
     arrowsizes = baseline['arrow'] + params["scale arrowsize"] * (weights / max_weight)
 
-    fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
+    fig, ax = plt.subplots(figsize=(10, 10))
 
     if hide_nodes:
         nx.draw_networkx_nodes(G, pos, ax=ax,
@@ -196,20 +196,27 @@ def generate_all_graphs(excel_path):
     if img1.size != img2.size:
         img2 = img2.resize(img1.size)
 
-    alpha = params["combined transparency"]
-
-    # img1 = Image.blend(Image.new("RGBA", img1.size, (255, 255, 255, 0)), img1, alpha)
     combined = Image.alpha_composite(img2, img1)
     
-    # Force RGB (drop alpha channel)
-    combined_rgb = combined.convert("RGB")
-    combined_rgb.save("combinedFigures.png")
+    # # Force RGB (drop alpha channel)
+    # combined_rgb = combined.convert("RGB")
+    # combined_rgb.save("combinedFigures.png", dpi=(600, 600))
     
-    # combined.save("combinedFigures.png", transparent=False)
+    # Upscale smoothly
+    scale_factor = 3  # 3x upscaling
+    new_size = (combined.width * scale_factor, combined.height * scale_factor)
+    combined_upscaled = combined.resize(new_size, resample=Image.Resampling.LANCZOS)
+
+    # Properly remove transparency by pasting on a white background
+    background = Image.new("RGB", combined_upscaled.size, (255, 255, 255))  # white background
+    background.paste(combined_upscaled, mask=combined_upscaled.split()[3])  # paste using alpha channel as mask
+    
+    # Save final image with no transparency
+    background.save("combinedFigures.png", dpi=(300, 300))    
     
     return "fig1.png", "fig2.png", "fig2_dummy.png", "combinedFigures.png"
 
 
 #%%
 # # # # Run the graph generator
-# fig1, fig2, dummy, combined = generate_all_graphs("S3- MicroNet Template.xlsx")
+fig1, fig2, dummy, combined = generate_all_graphs("S3- MicroNet Template.xlsx")
