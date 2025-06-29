@@ -32,8 +32,8 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params,
 
     weights = np.array([abs(data['weight']) for _, _, data in G.edges(data=True)])
     max_weight = max(weights.max(), 1)
-    linewidths = baseline['width'] + params["scale linewidth"] * (weights / max_weight)
-    arrowsizes = baseline['arrow'] + params["scale arrowsize"] * (weights / max_weight)
+    linewidths = (params["Linewidth"]/100) + params["Linewidth"] * (weights / max_weight)
+    arrowsizes = baseline['arrow'] + params["Arrowsize"] * (weights / max_weight)
 
     fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -43,17 +43,17 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params,
                                node_color=params(1, 1, 1, 0))
     else:
         nx.draw_networkx_nodes(G, pos, ax=ax,
-                               node_size=params["nodeSize"],
-                               node_color=params["nodeColor"])
+                               node_size=params["NodeSize"],
+                               node_color=params["NodeColor"])
             
     if hide_labels:
         for node, (x, y) in pos.items():
-            ax.text(x, y + 0.06, node, fontsize=params["nodeFontSize"],
+            ax.text(x, y + 0.06, node, fontsize=params["FontSize"],
                     ha='center', va='center', fontstyle='italic', color = (1, 1, 1, 0),
                     bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0.2'))
     else:
         for node, (x, y) in pos.items():
-            ax.text(x, y + 0.06, node, fontsize=params["nodeFontSize"],
+            ax.text(x, y + 0.06, node, fontsize=params["FontSize"],
                     ha='center', va='center', fontstyle='italic',
                     bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
 
@@ -141,13 +141,11 @@ def generate_all_graphs(excel_path):
             return cast(val.values[0]) if not val.empty else default
 
         return {
-            "scale neutral strength": get('scale neutral strength', 1.0, float),
-            "scale linewidth": get('scale linewidth', 1.0, float),
-            "scale arrowsize": get('scale arrowsize', 1.0, float),
-            "combined transparency": get('combined transparency', 0.5, float),
-            "nodeSize": get('nodeSize', 8, int),
-            "nodeFontSize": get('nodeFontSize', 12, int),
-            "nodeColor": get('nodeColor', 'skyblue', str),
+            "Linewidth": get('Linewidth', 1.0, float),
+            "Arrowsize": get('Arrowsize', 1.0, float),
+            "NodeSize": get('NodeSize', 8, int),
+            "FontSize": get('FontSize', 12, int),
+            "NodeColor": get('NodeColor', 'skyblue', str),
             "Positive Line Color": get('Positive Line Color', 'orange', str),
             "Positive Arrow Color": get('Positive Arrow Color', 'chocolate', str),
             "Negative Line Color": get('Negative Line Color', 'teal', str),
