@@ -214,7 +214,3 @@ def generate_all_graphs(excel_path):
     
     return "fig1.png", "fig2.png", "fig2_dummy.png", "combinedFigures.png"
 
-
-#%%
-# # # # Run the graph generator
-fig1, fig2, dummy, combined = generate_all_graphs("S3- MicroNet Template.xlsx")

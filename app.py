@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat May 17 18:43:55 2025
+Created on Sun Jun 29 13:53:53 2025
 
-@author: BioPixS
+@author: Pranav Lanka
 """
-
 import streamlit as st
 from micronetplot_core import generate_all_graphs
 
