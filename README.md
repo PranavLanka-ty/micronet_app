@@ -44,6 +44,7 @@ python app.py
 
 ---
 
+```markdown
 ## Performance
 
 **Typical install time**: ~1–2 minutes using `pip install -r requirements.txt` (may vary slightly by network speed and Python environment setup).
