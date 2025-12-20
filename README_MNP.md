@@ -41,3 +41,9 @@ git clone https://github.com/pranavlanka-ty/micronet_app.git
 cd micronet_app
 pip install -r requirements.txt
 python app.py
+
+## Performance
+
+- **Typical install time**: ~1–2 minutes using `pip install -r requirements.txt` (may vary slightly by network speed and Python environment setup).
+- **Run time**: Once installed, generating a typical interaction graph from a properly formatted `.xlsx` file takes **under 5 seconds**.
+- **Web app startup**: The Streamlit app launches locally within **1–2 seconds** after executing `python app.py`.
