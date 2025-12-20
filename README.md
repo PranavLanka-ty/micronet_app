@@ -11,7 +11,7 @@
 
 MicronetPlot is a Python-based software designed for visualizing and analyzing microbial interaction matrices as directed edge-weighted graphs. It supports intuitive visual overlays of positive and negative interaction networks with customizable aesthetics and edge importance.
 
-This package is intended to support scientific research involving microbial community modeling, including defined consortia like the **SIHUMI** (Simplified Human Intestinal Microbiota) model. It enables the generation of high-quality figures that can be embedded in scientific publications.
+By generating publication quality figures, this package is intended to support scientific research involving microbial community modeling, including defined consortia like the **SIHUMI** (Simplified Human Intestinal Microbiota) model.
 
 ---
 
