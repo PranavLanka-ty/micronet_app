@@ -19,9 +19,7 @@ This package is intended to support scientific research involving microbial comm
 
 - `/app.py` – Main script for launching the web-based GUI.
 - `/micronetplot_core.py` – Core plotting and network handling logic.
-- `/assets/` – Includes images and style definitions.
-- `/data/` – Sample datasets and interaction matrices.
-- `/outputs/` – Output folder for generated plots.
+- `/S3- MicroNet Template.xlsx` – Template File: Drag and Drop onto the Website to See the Generated Images
 - `/requirements.txt` – Python dependencies.
 
 ---
@@ -37,7 +35,9 @@ This package is intended to support scientific research involving microbial comm
 ## Performance
 
 **Typical install time**: ~1–2 minutes using `pip install -r requirements.txt` (may vary slightly by network speed and Python environment setup).
+
 **Run time**: Once installed, generating a typical interaction graph from a properly formatted `.xlsx` file takes **under 5 seconds**.  
+
 **Web app startup**: The Streamlit app launches locally within **1–2 seconds** after executing `python app.py`
 
 ---
