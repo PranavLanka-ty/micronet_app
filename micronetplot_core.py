@@ -25,6 +25,7 @@ def plot_graph(W_pos, W_neg, node_names, filename, pos, params,
     W_display = W_combined + baseline['factor'] * (np.ones_like(W_combined) - np.eye(N))
 
     G = nx.DiGraph()
+    G.add_nodes_from(node_names)
     for i, src in enumerate(node_names):
         for j, dst in enumerate(node_names):
             if W_display[i, j] != 0:
@@ -169,8 +170,6 @@ def generate_all_graphs(excel_path):
     _, W_neg = extract_matrix(df_neg)
 
     G_all = nx.DiGraph()
-    G_all.add_nodes_from(node_names)
-    
     for i in range(len(node_names)):
         for j in range(len(node_names)):
             if W_pos[i, j] + W_neg[i, j] != 0:
@@ -216,6 +215,3 @@ def generate_all_graphs(excel_path):
     
     return "fig1.png", "fig2.png", "fig2_dummy.png", "combinedFigures.png"
 
-#%%
-# # Run the graph generator
-# generate_all_graphs("S3- MicroNet Template.xlsx")
